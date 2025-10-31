@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -41,6 +42,7 @@ android {
 
 dependencies {
 
+    // 1. Dépendances Compose et Kotlin
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -49,6 +51,22 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    // 2. FIREBASE : Utilisation de la BOM pour gérer les versions
+    // Ceci est la ligne la plus importante pour résoudre les problèmes de KTX
+    implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
+
+    // 3. Dépendances Firebase spécifiques (sans version, gérées par la BOM)
+    // Résout 'auth' dans com.google.firebase.auth.ktx.auth
+    implementation("com.google.firebase:firebase-auth-ktx")
+    
+    // Firestore KTX (version gérée par la BOM)
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
+    // Résout GoogleSignIn et GoogleSignInOptions
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

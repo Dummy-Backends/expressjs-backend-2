@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "298356559393",
+    "project_id": "chacego-kotlin",
+    "storage_bucket": "chacego-kotlin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:298356559393:android:4d252757807d6d38c19d60",
+        "android_client_info": {
+          "package_name": "com.example.chacego"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAat63A2iezQBDWJaK0hNWOIAmpL61e0b4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
