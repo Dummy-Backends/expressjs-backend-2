@@ -108,10 +108,51 @@ router.post('/upload-image', protect, upload.single('image'), async (req, res) =
             return res.status(400).json({ message: 'No image file provided.' });
         }
 
+        // Get current profile to check for old image
+        const profile = await Profile.findOne({ userId: req.user.id });
+        
+        // If user has an old profile picture, delete it
+        if (profile && profile.profile_picture_url) {
+            try {
+                const oldUrl = profile.profile_picture_url;
+                
+                // Skip deletion if it's a placeholder or external URL
+                if (oldUrl.includes('placehold.co') || oldUrl.includes('http') && !oldUrl.includes(req.user.id)) {
+                    // This is likely an external URL or placeholder, skip deletion
+                } else {
+                    // Extract filename from the URL
+                    // URL format: http://host:port/uploads/filename
+                    // or just /uploads/filename
+                    let oldFilename = null;
+                    
+                    // Try to extract filename from URL path
+                    const urlMatch = oldUrl.match(/\/([^\/\?]+)(?:\?|$)/);
+                    if (urlMatch && urlMatch[1]) {
+                        // Extract the last part after the last slash
+                        const parts = oldUrl.split('/');
+                        const lastPart = parts[parts.length - 1];
+                        // Remove query parameters if any
+                        oldFilename = lastPart.split('?')[0];
+                    }
+                    
+                    // Also check if filename starts with userId (our naming convention)
+                    if (oldFilename && oldFilename.startsWith(req.user.id)) {
+                        const oldFilePath = path.join(uploadsDir, oldFilename);
+                        
+                        if (fs.existsSync(oldFilePath)) {
+                            fs.unlinkSync(oldFilePath);
+                            console.log(`Deleted old profile picture: ${oldFilename}`);
+                        }
+                    }
+                }
+            } catch (deleteError) {
+                // Log error but don't fail the upload
+                console.error('Error deleting old profile picture:', deleteError);
+            }
+        }
+
         // Construct the URL for the uploaded image
-        // This assumes your server is accessible at a base URL
         const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
-        // The static route /uploads serves from uploads/profile_pictures, so URL is /uploads/filename
         const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
 
         res.json({
@@ -122,6 +163,47 @@ router.post('/upload-image', protect, upload.single('image'), async (req, res) =
     } catch (error) {
         console.error('Error uploading image:', error);
         res.status(500).json({ message: 'Server error uploading image.' });
+    }
+});
+
+// @route   DELETE /api/profile/delete-image
+// @desc    Delete a profile picture by filename
+// @access  Private (Requires JWT)
+router.delete('/delete-image', protect, async (req, res) => {
+    try {
+        const { filename } = req.body;
+        
+        if (!filename) {
+            return res.status(400).json({ message: 'Filename is required.' });
+        }
+
+        // Security: Ensure the filename doesn't contain path traversal
+        if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+            return res.status(400).json({ message: 'Invalid filename.' });
+        }
+
+        // Get user's profile to verify they own this image
+        const profile = await Profile.findOne({ userId: req.user.id });
+        if (!profile) {
+            return res.status(404).json({ message: 'Profile not found.' });
+        }
+
+        // Check if this image belongs to the user (by checking if filename starts with userId)
+        if (!filename.startsWith(req.user.id)) {
+            return res.status(403).json({ message: 'You can only delete your own images.' });
+        }
+
+        const filePath = path.join(uploadsDir, filename);
+        
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            res.json({ success: true, message: 'Image deleted successfully.' });
+        } else {
+            res.status(404).json({ message: 'Image file not found.' });
+        }
+    } catch (error) {
+        console.error('Error deleting image:', error);
+        res.status(500).json({ message: 'Server error deleting image.' });
     }
 });
 
