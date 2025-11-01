@@ -63,9 +63,24 @@ dependencies {
     
     // Firestore KTX (version gérée par la BOM)
     implementation("com.google.firebase:firebase-firestore-ktx")
+    
+    // Firebase Storage KTX (version gérée par la BOM)
+    implementation("com.google.firebase:firebase-storage-ktx")
 
     // Résout GoogleSignIn et GoogleSignInOptions
     implementation("com.google.android.gms:play-services-auth:20.7.0")
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    
+    // Activity Result API for image picker
+    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation("androidx.activity:activity-compose:1.8.2")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
