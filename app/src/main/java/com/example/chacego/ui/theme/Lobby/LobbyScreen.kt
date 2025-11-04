@@ -1,11 +1,14 @@
 package com.example.chacego.ui.theme.Lobby
 
+import android.annotation.SuppressLint
+import android.app.Activity // <-- ADDED IMPORT
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
@@ -17,11 +20,13 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext // <-- ADDED IMPORT
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 
+@SuppressLint("ContextCastToActivity")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LobbyScreen(
@@ -38,6 +43,7 @@ fun LobbyScreen(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current as Activity // <-- GET CONTEXT
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -70,7 +76,34 @@ fun LobbyScreen(
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
 
-                Spacer(Modifier.weight(1f))
+                Spacer(Modifier.weight(1f)) // This spacer pushes the item below to the bottom
+
+                // --- UPDATED LOGOUT BUTTON ---
+                NavigationDrawerItem(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Logout,
+                            contentDescription = "Déconnexion",
+                            tint = MaterialTheme.colorScheme.error // Optional: makes the icon red
+                        )
+                    },
+                    label = {
+                        Text(
+                            "Déconnexion",
+                            color = MaterialTheme.colorScheme.error // Optional: makes the text red
+                        )
+                    },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        viewModel.signOut(context) // <-- PASS CONTEXT TO SIGN OUT
+                        onNavigateToAuth() // Navigate back to Auth screen
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                // --- END OF UPDATED LOGOUT BUTTON ---
 
                 Divider()
                 Text(
@@ -193,7 +226,6 @@ fun ProfileSection(profile: com.example.chacego.data.PlayerProfile) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Profile Picture
-            // FIX: Removed the condition '&& !it.contains("placehold")' to allow uploaded images to load.
             AsyncImage(
                 model = profile.profilePictureUrl.takeIf { it.isNotBlank() }
                     ?: null,

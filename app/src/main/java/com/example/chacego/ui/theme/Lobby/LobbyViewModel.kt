@@ -10,6 +10,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.chacego.data.PlayerProfile
 import com.example.chacego.data.ProfileApiService
 import com.example.chacego.data.RetrofitClient
+import com.google.android.gms.auth.api.signin.GoogleSignIn // <-- ADDED IMPORT
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions // <-- ADDED IMPORT
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -89,5 +91,16 @@ class LobbyViewModel : ViewModel() {
     fun refreshProfile() {
         loadProfile()
     }
-}
 
+    // --- UPDATED SIGN OUT FUNCTION ---
+    /**
+     * Signs the user out from Firebase AND the Google Sign-In client.
+     */
+    fun signOut(activity: Activity) { // <-- NOW ACCEPTS ACTIVITY
+        auth.signOut()
+        // This is the missing line that clears the Google cache
+        GoogleSignIn.getClient(activity, GoogleSignInOptions.DEFAULT_SIGN_IN).signOut()
+        Log.d("LobbyViewModel", "User signed out from Firebase and Google.")
+    }
+    // --- END OF UPDATED FUNCTION ---
+}
