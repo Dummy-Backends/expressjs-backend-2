@@ -8,6 +8,7 @@ require('dotenv').config({ path: './.env' }); // Load secrets
 
 // Import Routes
 const profileRoutes = require('./src/routes/profileRoutes');
+const matchRoutes = require('./src/routes/matchRoutes'); // <-- AJOUT
 
 // Initialize MongoDB Connection
 connectDB();
@@ -24,6 +25,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads/profile_picture
 
 // Route Mounting
 app.use('/api/profile', profileRoutes);
+app.use('/api/matches', matchRoutes);   // <-- AJOUT
 
 // Simple root route
 app.get('/', (req, res) => {

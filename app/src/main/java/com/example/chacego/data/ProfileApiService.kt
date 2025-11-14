@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 // Base URL for the local Express server
 // IMPORTANT: Use 10.0.2.2 for Android Emulator to access localhost (127.0.0.1)
-private const val BASE_URL = "http://192.168.1.12:3000/api/"
+private const val BASE_URL = "http://192.168.1.15:3000/api/"
 
 // Response model for image upload
 data class ImageUploadResponse(
